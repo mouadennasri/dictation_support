@@ -1,7 +1,7 @@
 {
   "name": "@mouadennasri/dictation_support",
-  "version": "1.1.0",
-  "description": "SDK to interact with dictation devices (RADPAIR fork — forwards HIDInputReportEvent.timeStamp to button listeners)",
+  "version": "1.2.0",
+  "description": "SDK to interact with dictation devices (RADPAIR fork — forwards HIDInputReportEvent.timeStamp to button listeners; exposes per-device supported/slider buttons and labels)",
   "scripts": {
     "build": "rimraf dist && npx webpack --config=webpack.config.js",
     "lint": "eslint --ignore-path .gitignore --ext .ts .",
