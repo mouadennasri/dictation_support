@@ -115,7 +115,8 @@ describe('DictationDeviceBase', () => {
       await state.fakeHidDevice.handleInputReport(
           [/*PLAY=*/ 1, /*unrelatedData=*/ 0, 0, 0, 0]);
       expect(state.buttonEventListener)
-          .toHaveBeenCalledOnceWith(state.dictationDevice, ButtonEvent.PLAY);
+          .toHaveBeenCalledOnceWith(
+              state.dictationDevice, ButtonEvent.PLAY, jasmine.any(Number));
       state.buttonEventListener.calls.reset();
 
       // Does not fire again for same buttons

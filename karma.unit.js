@@ -1,6 +1,16 @@
-var webpackConfig = require('./webpack.config');
+var DtsBundlePlugin = require('dts-bundle-webpack');
+var libraryWebpackConfig = require('./webpack.config');
 
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+// The test bundle emits no declaration files, so the dts bundler has nothing
+// to read and crashes the run.
+var webpackConfig = Object.assign({}, libraryWebpackConfig, {
+  plugins: libraryWebpackConfig.plugins.filter(function(plugin) {
+    return !(plugin instanceof DtsBundlePlugin);
+  }),
+});
+
+process.env.CHROME_BIN =
+    process.env.CHROME_BIN || require('puppeteer').executablePath();
 
 module.exports = function(config) {
   config.set({
