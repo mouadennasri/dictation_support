@@ -240,6 +240,52 @@ describe('SpeechMikeHidDevice', () => {
     }
   });
 
+  describe('button introspection', () => {
+    const SPEECHMIKE_BUTTONS = [
+      ButtonEvent.REWIND, ButtonEvent.PLAY, ButtonEvent.FORWARD,
+      ButtonEvent.INS_OVR, ButtonEvent.RECORD, ButtonEvent.COMMAND,
+      ButtonEvent.STOP, ButtonEvent.INSTR, ButtonEvent.F1_A, ButtonEvent.F2_B,
+      ButtonEvent.F3_C, ButtonEvent.F4_D, ButtonEvent.EOL_PRIO,
+      ButtonEvent.SCAN_END, ButtonEvent.SCAN_SUCCESS
+    ];
+
+    it('SpeechMike without slider', async () => {
+      await createDictationDeviceForType(DeviceType.SPEECHMIKE_SMP_3800);
+      expect(state.dictationDevice.getSupportedButtons())
+          .toEqual(SPEECHMIKE_BUTTONS);
+      expect(state.dictationDevice.getSliderButtons()).toEqual([]);
+    });
+
+    it('SpeechMike with INT slider', async () => {
+      await createDictationDeviceForType(DeviceType.SPEECHMIKE_SMP_3710);
+      expect(state.dictationDevice.getSupportedButtons())
+          .toEqual(SPEECHMIKE_BUTTONS);
+      expect(state.dictationDevice.getSliderButtons()).toEqual([
+        ButtonEvent.REWIND, ButtonEvent.PLAY, ButtonEvent.RECORD,
+        ButtonEvent.STOP
+      ]);
+    });
+
+    it('SpeechMike with PHI slider', async () => {
+      await createDictationDeviceForType(DeviceType.SPEECHMIKE_LFH_3520);
+      expect(state.dictationDevice.getSliderButtons()).toEqual([
+        ButtonEvent.REWIND, ButtonEvent.PLAY, ButtonEvent.FORWARD,
+        ButtonEvent.STOP
+      ]);
+    });
+
+    it('PowerMic 4', async () => {
+      await createDictationDeviceForType(DeviceType.POWERMIC_4);
+      expect(state.dictationDevice.getSupportedButtons()).toEqual([
+        ButtonEvent.TAB_BACKWARD, ButtonEvent.PLAY, ButtonEvent.TAB_FORWARD,
+        ButtonEvent.FORWARD, ButtonEvent.RECORD, ButtonEvent.COMMAND,
+        ButtonEvent.ENTER_SELECT, ButtonEvent.F1_A, ButtonEvent.F2_B,
+        ButtonEvent.F3_C, ButtonEvent.F4_D, ButtonEvent.REWIND
+      ]);
+      expect(state.dictationDevice.getSliderButtons()).toEqual([]);
+    });
+  });
+
   it('setLed()', async () => {
     await createDictationDeviceForType(DeviceType.SPEECHMIKE_SMP_3700);
 
@@ -873,11 +919,14 @@ describe('SpeechMikeHidDevice', () => {
 
     it('propagates button press events from proxy device', async () => {
       const button = ButtonEvent.RECORD;
+      const eventTimeStamp = 1234;
       expect(state.buttonEventListener).not.toHaveBeenCalled();
       await Promise.all([...state.proxyDicationDeviceButtonEventListeners].map(
-          listener => listener(state.proxyDicationDevice, button)));
+          listener =>
+              listener(state.proxyDicationDevice, button, eventTimeStamp)));
       expect(state.buttonEventListener)
-          .toHaveBeenCalledOnceWith(state.dictationDevice, button);
+          .toHaveBeenCalledOnceWith(
+              state.dictationDevice, button, eventTimeStamp);
     });
   });
 });

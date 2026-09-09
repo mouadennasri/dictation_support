@@ -4,9 +4,9 @@ type DeviceEventListener = (event: HIDConnectionEvent) => void|Promise<void>;
 
 export class FakeHidApi implements HID {
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-  onconnect: ((this: this, ev: Event) => any)|null = null;
+  onconnect: ((this: HID, ev: Event) => any)|null = null;
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-  ondisconnect: ((this: this, ev: Event) => any)|null = null;
+  ondisconnect: ((this: HID, ev: Event) => any)|null = null;
 
   protected readonly connectListeners = new Set<DeviceEventListener>();
   protected readonly disconnectListeners = new Set<DeviceEventListener>();
@@ -34,21 +34,28 @@ export class FakeHidApi implements HID {
     return Promise.resolve(result);
   }
 
+  // Matches both HID overloads; only connect/disconnect functions are kept.
   addEventListener(
-      type: 'connect'|'disconnect', listener: DeviceEventListener) {
+      type: string,
+      listener: EventListenerOrEventListenerObject|DeviceEventListener|null,
+      _options?: boolean|AddEventListenerOptions) {
+    if (typeof listener !== 'function') return;
     if (type === 'connect') {
-      this.connectListeners.add(listener);
-    } else {
-      this.disconnectListeners.add(listener);
+      this.connectListeners.add(listener as DeviceEventListener);
+    } else if (type === 'disconnect') {
+      this.disconnectListeners.add(listener as DeviceEventListener);
     }
   }
 
   removeEventListener(
-      type: 'connect'|'disconnect', listener: DeviceEventListener) {
+      type: string,
+      listener: EventListenerOrEventListenerObject|DeviceEventListener|null,
+      _options?: boolean|EventListenerOptions) {
+    if (typeof listener !== 'function') return;
     if (type === 'connect') {
-      this.connectListeners.delete(listener);
-    } else {
-      this.disconnectListeners.delete(listener);
+      this.connectListeners.delete(listener as DeviceEventListener);
+    } else if (type === 'disconnect') {
+      this.disconnectListeners.delete(listener as DeviceEventListener);
     }
   }
 

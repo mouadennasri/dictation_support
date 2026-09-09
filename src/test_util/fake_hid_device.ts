@@ -4,7 +4,9 @@ type SendReportReceiver = (reportId: number, data: BufferSource) => void;
 
 export class FakeHidDevice implements HIDDevice {
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-  oninputreport: ((this: HIDDevice, ev: HIDInputReportEvent) => any)|null;
+  // `any`: a polymorphic `this` here can't satisfy both `implements` and
+  // structural assignability to HIDDevice.
+  oninputreport: any = null;
   opened = false;
   readonly vendorId: number;
   readonly productId: number;
@@ -68,18 +70,29 @@ export class FakeHidDevice implements HIDDevice {
     throw new Error('Not implemented');
   }
 
-  addEventListener(type: string, listener: InputReportListener) {
-    if (type === 'inputreport') this.inputReportListeners.add(listener);
+  // Matches both HIDDevice overloads; only 'inputreport' functions are kept.
+  addEventListener(
+      type: string,
+      listener: EventListenerOrEventListenerObject|InputReportListener|null,
+      _options?: boolean|AddEventListenerOptions) {
+    if (type === 'inputreport' && typeof listener === 'function') {
+      this.inputReportListeners.add(listener as InputReportListener);
+    }
   }
 
-  removeEventListener(type: string, listener: InputReportListener) {
-    if (type === 'inputreport') this.inputReportListeners.delete(listener);
+  removeEventListener(
+      type: string,
+      listener: EventListenerOrEventListenerObject|InputReportListener|null,
+      _options?: boolean|EventListenerOptions) {
+    if (type === 'inputreport' && typeof listener === 'function') {
+      this.inputReportListeners.delete(listener as InputReportListener);
+    }
   }
 
-  async handleInputReport(data: number[]) {
+  async handleInputReport(data: number[], timeStamp = 0) {
     const dataView = new DataView(new Uint8Array(data).buffer);
-    const event: HIDInputReportEvent = {data: dataView} as unknown as
-        HIDInputReportEvent;
+    const event: HIDInputReportEvent =
+        {data: dataView, timeStamp} as unknown as HIDInputReportEvent;
     await Promise.all(
         [...this.inputReportListeners].map(listener => listener(event)));
   }
