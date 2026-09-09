@@ -24,13 +24,16 @@ const DtsBundlePlugin = require('dts-bundle-webpack');
 const libraryName = 'DictationSupport';
 
 module.exports = {
-  entry: './src/index.ts',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js',
-    library: libraryName,
-    libraryTarget: 'umd',
-    umdNamedDefine: true,
+  entry : './src/index.ts',
+  output : {
+    path : path.resolve(__dirname, 'dist'),
+    filename : 'index.js',
+    library : libraryName,
+    libraryTarget : 'umd',
+    umdNamedDefine : true,
+    // `self` does not exist in Node, so consumers that server-render (Next.js)
+    // could not even import the package.
+    globalObject : 'this',
   },
   resolve : {extensions : ['.ts']},
   devtool : 'source-map',
@@ -48,18 +51,18 @@ module.exports = {
             },
           ],
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'example/index.ejs'),
-      inject: 'head',
-    }),
-    new DtsBundlePlugin({
-      name: libraryName,
-      main: 'dist/out-tsc/index.d.ts',
-      out: '../index.d.ts',
-      removeSource: true,
-      outputAsModuleFolder: true, // to use npm in-package typings
-    }),
-  ],
+  plugins :
+          [
+            new HtmlWebpackPlugin({
+              template : path.resolve(__dirname, 'example/index.ejs'),
+              inject : 'head',
+            }),
+            new DtsBundlePlugin({
+              name : libraryName,
+              main : 'dist/out-tsc/index.d.ts',
+              out : '../index.d.ts',
+              removeSource : true,
+              outputAsModuleFolder : true,  // to use npm in-package typings
+            }),
+          ],
 };
- 
