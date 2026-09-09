@@ -31,6 +31,16 @@ describe('PowerMic3Device', () => {
     expect(state.dictationDevice.implType).toBe(ImplementationType.POWERMIC_3);
   });
 
+  it('exposes its buttons and has no slider', () => {
+    expect(state.dictationDevice.getSupportedButtons()).toEqual([
+      ButtonEvent.TRANSCRIBE, ButtonEvent.TAB_BACKWARD, ButtonEvent.RECORD,
+      ButtonEvent.TAB_FORWARD, ButtonEvent.REWIND, ButtonEvent.FORWARD,
+      ButtonEvent.PLAY, ButtonEvent.CUSTOM_LEFT, ButtonEvent.ENTER_SELECT,
+      ButtonEvent.CUSTOM_RIGHT
+    ]);
+    expect(state.dictationDevice.getSliderButtons()).toEqual([]);
+  });
+
   it('handles input reports', async () => {
     const testCases: ButtonMappingTestCase[] = [
       {

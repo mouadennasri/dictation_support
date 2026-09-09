@@ -358,6 +358,11 @@ export class SpeechMikeHidDevice extends DictationDeviceBase {
     }
   }
 
+  override getSliderButtons(): ButtonEvent[] {
+    return this.getSupportedButtons().filter(
+        buttonEvent => (this.sliderBitsFilter & buttonEvent) !== 0);
+  }
+
   protected override async onInputReport(event: HIDInputReportEvent) {
     const data = event.data;
     const command = data.getUint8(0);

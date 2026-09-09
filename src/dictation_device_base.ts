@@ -76,6 +76,34 @@ export enum ButtonEvent {
   SCAN_SUCCESS = 1 << 22,
 }
 
+// Labels as printed on the devices; F/letter keys carry both the SpeechMike
+// (F1..F4) and PowerMic 4 (A..D) legends.
+export const ButtonEventLabel: Readonly<Record<ButtonEvent, string>> =
+    Object.freeze({
+      [ButtonEvent.NONE]: 'None',
+      [ButtonEvent.REWIND]: 'Rewind',
+      [ButtonEvent.PLAY]: 'Play',
+      [ButtonEvent.FORWARD]: 'Forward',
+      [ButtonEvent.INS_OVR]: 'INS/OVR',
+      [ButtonEvent.RECORD]: 'Record',
+      [ButtonEvent.COMMAND]: 'Command',
+      [ButtonEvent.STOP]: 'Stop',
+      [ButtonEvent.INSTR]: 'INSTR',
+      [ButtonEvent.F1_A]: 'F1/A',
+      [ButtonEvent.F2_B]: 'F2/B',
+      [ButtonEvent.F3_C]: 'F3/C',
+      [ButtonEvent.F4_D]: 'F4/D',
+      [ButtonEvent.EOL_PRIO]: 'EOL/PRIO',
+      [ButtonEvent.TRANSCRIBE]: 'Transcribe',
+      [ButtonEvent.TAB_BACKWARD]: 'Tab backward',
+      [ButtonEvent.TAB_FORWARD]: 'Tab forward',
+      [ButtonEvent.CUSTOM_LEFT]: 'Custom left',
+      [ButtonEvent.CUSTOM_RIGHT]: 'Custom right',
+      [ButtonEvent.ENTER_SELECT]: 'Enter/Select',
+      [ButtonEvent.SCAN_END]: 'Scan end',
+      [ButtonEvent.SCAN_SUCCESS]: 'Scan success',
+    });
+
 export type ButtonEventListener =
     (device: DictationDevice, bitMask: ButtonEvent,
      eventTimeStamp: number) => void|Promise<void>;
@@ -115,6 +143,17 @@ export abstract class DictationDeviceBase {
 
   addButtonEventListener(listener: ButtonEventListener) {
     this.buttonEventListeners.add(listener);
+  }
+
+  // Every ButtonEvent this device can physically emit.
+  getSupportedButtons(): ButtonEvent[] {
+    return [...this.getButtonMappings().keys()];
+  }
+
+  // ButtonEvents that report a slider position rather than a key press. They
+  // are debounced by filterOutputBitMask() and are not usable as buttons.
+  getSliderButtons(): ButtonEvent[] {
+    return [];
   }
 
   protected async onInputReport(event: HIDInputReportEvent) {

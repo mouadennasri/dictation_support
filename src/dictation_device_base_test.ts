@@ -49,6 +49,16 @@ describe('DictationDeviceBase', () => {
     state.dictationDevice.addButtonEventListener(state.buttonEventListener);
   });
 
+  it('getSupportedButtons() lists every mapped ButtonEvent', () => {
+    expect(state.dictationDevice.getSupportedButtons()).toEqual([
+      ButtonEvent.PLAY, ButtonEvent.RECORD
+    ]);
+  });
+
+  it('getSliderButtons() is empty by default', () => {
+    expect(state.dictationDevice.getSliderButtons()).toEqual([]);
+  });
+
   describe('init()', () => {
     it('opens the device if closed', async () => {
       expect(state.fakeHidDevice.opened).toBe(false);
